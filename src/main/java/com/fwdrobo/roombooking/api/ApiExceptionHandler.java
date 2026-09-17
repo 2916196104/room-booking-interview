@@ -28,7 +28,7 @@ public class ApiExceptionHandler {
             HttpServletRequest request
     ) {
         return response(
-                HttpStatus.INTERNAL_SERVER_ERROR,
+                HttpStatus.NOT_FOUND,
                 "BOOKING_NOT_FOUND",
                 exception.getMessage(),
                 request);
@@ -49,7 +49,7 @@ public class ApiExceptionHandler {
     ) {
         return response(HttpStatus.CONFLICT, "BOOKING_CONFLICT", exception.getMessage(), request);
     }
-
+    //请求体无法解析
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> handleUnreadableRequest(
             HttpMessageNotReadableException exception,
@@ -57,7 +57,7 @@ public class ApiExceptionHandler {
     ) {
         return response(HttpStatus.BAD_REQUEST, "MALFORMED_REQUEST", "Request body is malformed", request);
     }
-
+   //
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleUnexpected(
             Exception exception,

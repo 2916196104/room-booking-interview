@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,5 +35,19 @@ class BookingApiTest {
                 .andExpect(jsonPath("$.code").value("ROOM_NOT_FOUND"))
                 .andExpect(jsonPath("$.path")
                         .value("/rooms/room-missing/bookings/booking-1011"));
+    }
+
+    @Test
+    void returnsNotFoundForMissingBooking() throws Exception {
+        mockMvc.perform(get("/rooms/room-101/bookings/booking-missing"))
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$", aMapWithSize(5)),
+                        jsonPath("$.status").value(404),
+                        jsonPath("$.error").value("Not Found"),
+                        jsonPath("$.code").value("BOOKING_NOT_FOUND"),
+                        jsonPath("$.message")
+                                .value("Booking booking-missing was not found in room room-101"),
+                        jsonPath("$.path").value("/rooms/room-101/bookings/booking-missing"));
     }
 }
