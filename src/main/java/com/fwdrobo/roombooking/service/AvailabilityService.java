@@ -2,7 +2,6 @@ package com.fwdrobo.roombooking.service;
 
 import java.time.LocalDateTime;
 
-import com.fwdrobo.roombooking.domain.Booking;
 import com.fwdrobo.roombooking.repository.InMemoryBookingRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +15,6 @@ public class AvailabilityService {
     }
 
     public boolean isAvailable(String roomId, LocalDateTime start, LocalDateTime end) {
-        boolean hasConflict = false;
-
-        for (Booking existing : bookingRepository.findByRoomId(roomId)) {
-            boolean candidateStartsBeforeExistingEnds = start.isBefore(existing.end());
-            boolean existingStartsBeforeCandidateEnds = existing.start().isBefore(end);
-            boolean overlaps = candidateStartsBeforeExistingEnds && existingStartsBeforeCandidateEnds;
-            hasConflict = overlaps;
-        }
-
-        return !hasConflict;
+        return !bookingRepository.existsOverlapping(roomId, start, end);
     }
 }
