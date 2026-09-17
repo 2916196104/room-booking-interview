@@ -29,16 +29,22 @@ public class BookingService {
         this.availabilityService = availabilityService;
     }
 
+    //根据房间ID和预约ID查询预约
     public Booking get(String roomId, String bookingId) {
         requireRoom(roomId);
         return bookingRepository.findByIdAndRoomId(bookingId, roomId)
                 .orElseThrow(() -> new BookingNotFoundException(roomId, bookingId));
     }
 
+    //创建新的预约
     public Booking create(String roomId, LocalDateTime start, LocalDateTime end) {
-        throw new UnsupportedOperationException("Booking creation is not implemented");
+        if (!isAvailable(roomId, start, end)) {
+            throw new BookingConflictException(roomId, start, end);
+        }
+        return bookingRepository.create(roomId, start, end);
     }
 
+    //房间是否可用 确认房间存在，再校验时间，最后判断是否冲突
     public boolean isAvailable(String roomId, LocalDateTime start, LocalDateTime end) {
         requireRoom(roomId);
         BookingWindowResult result = bookingWindowPolicy.evaluate(start, end);
@@ -48,6 +54,7 @@ public class BookingService {
         return availabilityService.isAvailable(roomId, start, end);
     }
 
+    //检查房间是否存在
     private void requireRoom(String roomId) {
         roomRepository.findById(roomId)
                 .orElseThrow(() -> new RoomNotFoundException(roomId));
